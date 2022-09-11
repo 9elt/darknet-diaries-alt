@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Darknet Diaries - Auto Scraping Front-end</title>
+    <link rel="stylesheet" href="css/main.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.8.0/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.8.0/ScrollTrigger.min.js"></script>
+</head>
+<body>
+
+    <header>
+        <div class="center container">
+            <h1>
+                <a href="">DARKNET DIARIES</a>
+            </h1>
+            <nav>
+                <ul>
+                    <li><a href="">episodes</a></li>
+                    <li><a href="https://darknetdiaries.com" target="_">official website</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div id="main"></div>
+
+    <footer>
+        <p>
+            This is a fan-made alternative fornt-end for the <a href="https://darknetdiaries.com" target="_">official Darknet Diaries</a> website
+            <br>please support the original creators.
+        </p>
+    </footer>
+
+    <!-- last episode number -->
+    <input type="hidden" id="last-episode">
+
+    <!-- episode list template -->
+    <template class="list">
+        <div class="list-bg">
+            <img src="media/surround.jpg" class="bg-image">
+        </div>
+        <div class="list-page">
+            <div class="pages pages-top center"></div>
+            <div class="list-container center" id="container"></div>
+            <div class="pages pages-bottom center"></div>
+        </div>
+    </template>
+
+    <!-- episode preview template -->
+    <template class="ep-preview">
+        <div class="ep-preview">
+
+            <div class="ep-cover">
+                <img id="ep-cover-image" src="">
+            </div>
+            
+            <div class="preview-info">
+
+                <div>
+
+                    <div>
+                        <h2>
+                            <span class="ep-number"></span>
+                            <span class="ep-title"></span>
+                        </h2>
+            
+                        <div class="ep-info">
+                            <h4 class="ep-date"></h4>
+                        </div>
+                    </div>
+
+                    <a class="p-btn" href="">Listen Now ></a>
+                </div>
+
+                <p class="ep-desc--small"></p>
+    
+
+            </div>
+
+        </div>
+    </template>
+
+    <!-- episode template -->
+    <template class="episode">
+
+        <div class="banner">
+
+            <img id="ep-bg-image" class="bg-image parallax" data-parallax="-0.3">
+            
+            <div class="banner-ui center parallax" data-parallax="0.1"> 
+
+                <div class="banner-left center">
+                
+                    <h1>
+                        <span class="ep-number" id="ep-number"></span>
+                        <span id="ep-title"></span>
+                    </h1>
+
+                    <div class="ep-cover">
+                        <img id="ep-cover-image" src="">
+                    </div>
+
+                </div>
+
+                <div class="banner-right center">
+
+                    <div class="ep-info">
+                        <ul id="ep-categories"></ul>
+                        <h2 class="ep-date" id="ep-date"></h2>
+                    </div>
+
+                    <darknet-diaries></darknet-diaries>
+
+                    <p class="ep-desc--small" id="ep-desc-small"></p>
+
+                    <div class="prev-next">
+                        <p><a id="ep-prev"> < PREVIOUS EPISODE</a></p>
+                        <span>|</span>
+                        <p><a id="ep-next"> NEXT EPISODE ></a></p>
+                    </div>
+
+                    <h4 class="p-btn" id="transcript">Read full transcript</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="ep-desc--container center">
+            <div class="ep-desc center" id="ep-desc">
+            </div>
+            <p id="toggle-desc" class="p-btn">Read more</p>
+        </div>
+
+    </template>
+
+    <!-- custom player template -->
+    <template class="player">
+
+        <style>
+
+            .icon--container {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .icon--container > * {
+                margin: 1rem;
+                cursor: pointer;
+            }
+
+            .play-icon {
+                width: 2.8rem;
+                height: 2.8rem;
+                fill: #fff;
+                transition: .3s all ease-in-out;
+            }
+
+            .play-icon:hover {
+                fill: var(--accent-color);
+            }
+
+            .arrow {
+                transform-origin: center center;
+                /* transition: all 1s ease-in-out; */
+            }
+
+            .icon.hidden { display: none; }
+
+            .time-bar--cotnainer {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .timer-red { color: var(--accent-color); }
+
+            input[type="range"] {
+                position: relative;
+                width: 100%;
+                height: .4rem;
+                margin-left: .5rem;
+                margin-right: .5rem;
+                border-radius: .2rem;
+                background-color: #fff;
+                -webkit-appearance: none;
+                outline: none;
+                background-image: linear-gradient(90deg, #e0252561 var(--buffered), #fff var(--buffered));
+            }
+
+            input[type="range"]::before {
+                position: absolute;
+                content: "";
+                top: 0;
+                left: 0;
+                width: var(--progress);
+                height: 100%;
+                background-color: var(--accent-color);
+                box-shadow: 0 0 .3rem var(--accent-color);
+                border-radius: .2rem;
+                cursor: pointer;
+            }
+
+            input[type="range"]::-webkit-slider-thumb {
+                opacity: 1;
+                position: relative;
+                box-sizing: content-box;
+                height: 1rem;
+                width: 1rem;
+                border-radius: 50%;
+                background-color: var(--accent-color);
+                cursor: pointer;
+                outline: none;
+                -webkit-appearance: none;
+            }
+
+            input[type="range"]:active::-webkit-slider-thumb {
+                transform: scale(1.2);
+                background: var(--accent-color);
+                box-shadow: 0 0 .3rem var(--accent-color);
+            }
+
+            /* MOZ */
+            input[type="range"]::-moz-range-track {
+                position: relative;
+                width: 100%;
+                height: .4rem;
+                margin-left: .5rem;
+                margin-right: .5rem;
+                border-radius: .2rem;
+                background-color: #fff;
+                -webkit-appearance: none;
+                outline: none;
+                background-image: linear-gradient(90deg, #e0252561 var(--buffered), #fff var(--buffered));
+            }
+
+            input[type="range"]::-moz-range-progress {
+                position: absolute;
+                content: "";
+                top: 0;
+                left: 0;
+                width: var(--progress);
+                height: 100%;
+                background-color: var(--accent-color);
+                box-shadow: 0 0 .3rem var(--accent-color);
+                border-radius: .2rem;
+                cursor: pointer;
+            }
+
+            input[type="range"]::-moz-range-thumb {
+                opacity: 1;
+                position: relative;
+                box-sizing: content-box;
+                height: 1rem;
+                width: 1rem;
+                border-radius: 50%;
+                background-color: var(--accent-color);
+                cursor: pointer;
+                border: none;
+                -webkit-appearance: none;
+            }
+
+            input[type="range"]:active::-moz-range-thumb {
+                transform: scale(1.2);
+                background: var(--accent-color);
+                box-shadow: 0 0 .3rem var(--accent-color);
+            }
+            input[type="range"]::-moz-focus-outer {
+                border: 0;
+            }
+
+        </style>
+
+		<div id="container">
+
+			<audio src="" preload="metadata"></audio>
+
+            <div class="time-bar--cotnainer">
+
+                <span id="current-time" class="timer timer-red">0:00</span>
+                <input type="range" id="time-bar" max="100" value="0">
+                <span id="duration" class="timer">0:00</span>
+
+            </div>
+
+            <div class="icon--container">
+                
+                <div class="play-icon" id="back-30">
+                    <svg x="0px" y="0px" viewBox="0 0 64 64" 
+                        xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve">
+                        <!-- back -->
+                        <path class="arrow" d="M32,8V4.2c0-0.8-0.8-1.3-1.5-0.9L20,9.3c-0.7,0.4-0.7,1.3,0,1.7l10.5,6.1c0.7,0.4,1.5-0.1,1.5-0.9v-3.8
+                            c11.5,0,20.7,10,19.4,21.7c-1,8.9-8.2,16.2-17.2,17.2C22.8,52.6,13.1,44,12.5,33c0-0.5-0.5-1-1-1H9c-0.6,0-1,0.5-1,1
+                            C8.6,46.3,19.9,56.8,33.5,56c12-0.7,21.7-10.5,22.4-22.4C56.8,19.6,45.8,8,32,8z"/>
+                        <!-- 3 -->
+                        <path d="M22.4,43.1c-0.8-0.4-1.4-1-1.9-1.8c-0.4-0.8-0.6-1.7-0.6-2.8v-1.4h4v1.3c0,0.3,0.1,0.5,0.2,0.8
+                            c0.1,0.2,0.3,0.4,0.5,0.5c0.2,0.1,0.5,0.2,0.8,0.2c0.5,0,0.8-0.1,1.1-0.4c0.3-0.3,0.4-0.6,0.4-1.1v-3.3c0-0.5-0.1-0.9-0.4-1.2
+                            c-0.3-0.3-0.6-0.4-1.1-0.4h-1.3v-3.9h1.3c0.3,0,0.6-0.1,0.8-0.4c0.2-0.3,0.3-0.6,0.3-1.1v-2.8c0-0.4-0.1-0.6-0.3-0.8
+                            s-0.5-0.3-0.8-0.3c-0.2,0-0.5,0-0.6,0.1c-0.2,0.1-0.3,0.2-0.4,0.4c-0.1,0.2-0.1,0.4-0.1,0.6v1.6h-3.9v-1.6c0-1.1,0.2-2,0.6-2.7
+                            c0.4-0.8,1-1.3,1.8-1.7c0.8-0.4,1.7-0.6,2.8-0.6c1.6,0,2.8,0.4,3.6,1.3c0.9,0.9,1.3,2.1,1.3,3.7v3.1c0,0.6-0.2,1.2-0.6,1.7
+                            c-0.4,0.5-0.9,1-1.6,1.4c0.8,0.3,1.4,0.7,1.9,1.3c0.5,0.6,0.7,1.3,0.7,2.1v3.5c0,1.1-0.2,2.1-0.6,2.9s-1,1.4-1.8,1.8
+                            c-0.8,0.4-1.8,0.6-2.9,0.6C24.2,43.7,23.2,43.5,22.4,43.1z"/>
+                        <!-- 0 -->
+                        <path d="M34.9,42.3c-0.9-1-1.4-2.3-1.4-4.1V25.8c0-1.8,0.5-3.1,1.4-4.1c0.9-1,2.2-1.4,3.9-1.4
+                            c1.7,0,3,0.5,3.9,1.4c0.9,1,1.4,2.3,1.4,4.1v12.4c0,1.8-0.5,3.1-1.4,4.1s-2.2,1.4-3.9,1.4C37.1,43.7,35.8,43.3,34.9,42.3z
+                            M39.8,39.4c0.2-0.3,0.4-0.7,0.4-1.2V25.8c0-0.5-0.1-0.9-0.4-1.2c-0.2-0.3-0.6-0.4-1-0.4c-0.4,0-0.8,0.1-1,0.4
+                            c-0.2,0.3-0.4,0.7-0.4,1.2v12.4c0,0.5,0.1,0.9,0.4,1.2s0.6,0.4,1,0.4C39.2,39.9,39.6,39.7,39.8,39.4z"/>
+                    </svg>
+                </div>
+
+                <div class="play-icon" id="play-icon">
+                    <svg x="0px" y="0px" viewBox="0 0 64 64" 
+                        xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve">
+                        <!-- circle -->
+                        <path class="arrow" d="M32,8C18.7,8,8,18.7,8,32s10.7,24,24,24s24-10.7,24-24S45.3,8,32,8z M32,51.5c-10.8,0-19.5-8.7-19.5-19.5
+                            c0-10.8,8.7-19.5,19.5-19.5S51.5,21.2,51.5,32C51.5,42.8,42.8,51.5,32,51.5z"/>
+                        <!-- pause -->
+                        <g id="icon-pause" class="icon hidden">
+                            <path d="M28.2,20.3h-5.9c-0.6,0-1,0.4-1,1v21.5c0,0.6,0.4,1,1,1h5.9c0.6,0,1-0.4,1-1V21.3C29.2,20.7,28.8,20.3,28.2,20.3z"/>
+                            <path d="M41.7,20.3h-5.5c-0.6,0-1,0.4-1,1v21.5c0,0.6,0.4,1,1,1h5.5c0.6,0,1-0.4,1-1V21.3C42.7,20.7,42.3,20.3,41.7,20.3z"/>
+                        </g>
+                        <!-- play -->
+                        <path id="icon-play" class="icon" style="transform: translateX(2px);" d="M22.7,21.1l18.4,10.1c0.7,0.4,0.7,1.4,0,1.8L22.7,42.9c-0.7,0.4-1.5-0.1-1.5-0.9V21.9
+                            C21.3,21.2,22.1,20.7,22.7,21.1z"/>
+                    </svg>
+                </div>
+
+                <div class="play-icon" id="forw-30">
+                    <svg x="0px" y="0px" viewBox="0 0 64 64" 
+                        xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve">
+                        <!-- forward -->
+                        <path class="arrow" d="M32,8V4.2c0-0.8,0.8-1.3,1.5-0.9L44,9.3c0.7,0.4,0.7,1.3,0,1.7l-10.5,6.1C32.9,17.5,32,17,32,16.3v-3.8
+                            c-11.5,0-20.7,10-19.4,21.7c1,8.9,8.2,16.2,17.2,17.2C41.2,52.6,51,44,51.5,33c0-0.5,0.5-1,1-1H55c0.6,0,1,0.5,1,1
+                            C55.4,46.3,44.1,56.8,30.5,56c-12-0.7-21.7-10.5-22.4-22.4C7.2,19.6,18.3,8,32,8z"/>
+                        <!-- 3 -->
+                        <path d="M22.4,43.1c-0.8-0.4-1.4-1-1.9-1.8c-0.4-0.8-0.6-1.7-0.6-2.8v-1.4h4v1.3c0,0.3,0.1,0.5,0.2,0.8
+                            c0.1,0.2,0.3,0.4,0.5,0.5c0.2,0.1,0.5,0.2,0.8,0.2c0.5,0,0.8-0.1,1.1-0.4c0.3-0.3,0.4-0.6,0.4-1.1v-3.3c0-0.5-0.1-0.9-0.4-1.2
+                            c-0.3-0.3-0.6-0.4-1.1-0.4h-1.3v-3.9h1.3c0.3,0,0.6-0.1,0.8-0.4c0.2-0.3,0.3-0.6,0.3-1.1v-2.8c0-0.4-0.1-0.6-0.3-0.8
+                            s-0.5-0.3-0.8-0.3c-0.2,0-0.5,0-0.6,0.1c-0.2,0.1-0.3,0.2-0.4,0.4c-0.1,0.2-0.1,0.4-0.1,0.6v1.6h-3.9v-1.6c0-1.1,0.2-2,0.6-2.7
+                            c0.4-0.8,1-1.3,1.8-1.7c0.8-0.4,1.7-0.6,2.8-0.6c1.6,0,2.8,0.4,3.6,1.3c0.9,0.9,1.3,2.1,1.3,3.7v3.1c0,0.6-0.2,1.2-0.6,1.7
+                            c-0.4,0.5-0.9,1-1.6,1.4c0.8,0.3,1.4,0.7,1.9,1.3c0.5,0.6,0.7,1.3,0.7,2.1v3.5c0,1.1-0.2,2.1-0.6,2.9s-1,1.4-1.8,1.8
+                            c-0.8,0.4-1.8,0.6-2.9,0.6C24.2,43.7,23.2,43.5,22.4,43.1z"/>
+                        <!-- 0 -->
+                        <path d="M34.9,42.3c-0.9-1-1.4-2.3-1.4-4.1V25.8c0-1.8,0.5-3.1,1.4-4.1c0.9-1,2.2-1.4,3.9-1.4
+                            c1.7,0,3,0.5,3.9,1.4c0.9,1,1.4,2.3,1.4,4.1v12.4c0,1.8-0.5,3.1-1.4,4.1s-2.2,1.4-3.9,1.4C37.1,43.7,35.8,43.3,34.9,42.3z
+                            M39.8,39.4c0.2-0.3,0.4-0.7,0.4-1.2V25.8c0-0.5-0.1-0.9-0.4-1.2c-0.2-0.3-0.6-0.4-1-0.4c-0.4,0-0.8,0.1-1,0.4
+                            c-0.2,0.3-0.4,0.7-0.4,1.2v12.4c0,0.5,0.1,0.9,0.4,1.2s0.6,0.4,1,0.4C39.2,39.9,39.6,39.7,39.8,39.4z"/>
+                    </svg>
+                </div>
+
+            </div>
+		</div>
+	</template>
+
+    <!-- custom player module -->
+	<script type="module">
+
+		class AudioPlayer extends HTMLElement {
+			constructor() {
+				super();
+				const template = document.querySelector('template.player');
+				const Tcontent = template.content;
+				const shadow = this.attachShadow({mode: 'open'});
+				shadow.appendChild( Tcontent.cloneNode(true) );
+			}
+
+			connectedCallback() { player(this); }
+		}
+
+		const player = function (elem) {
+
+			const shadow = elem.shadowRoot;
+
+			const container = shadow.getElementById('container');
+			const play_icon = shadow.getElementById('play-icon');
+			const time_bar = shadow.getElementById('time-bar');
+			const duration = shadow.getElementById('duration');
+			const current = shadow.getElementById('current-time');
+			const audio = shadow.querySelector('audio');
+            const back = shadow.getElementById('back-30');
+            const forw = shadow.getElementById('forw-30');
+
+			let play_state = 1;
+			let loop = null;
+
+			container.className = "player";
+            //audio.src = elem.getAttribute('data-src');
+
+			const loopPlay = () => {
+				time_bar.value = Math.floor(audio.currentTime);
+				current.textContent = calcTime(time_bar.value);
+				container.style.setProperty('--progress', `${time_bar.value / time_bar.max * 100}%`);
+				loop = requestAnimationFrame( loopPlay ) ;
+			}
+
+			const calcTime = (secs) => {
+				const minutes = Math.floor(secs / 60);
+				const seconds = Math.floor(secs % 60);
+				const returnedSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`;
+				return `${minutes}:${returnedSeconds}`;
+			}
+
+			const showProgress = (range) => {
+				container.style.setProperty('--progress', range.value / range.max * 100 + '%');
+			}
+
+			const showDuration = () => {
+				duration.textContent = calcTime(audio.duration);
+			}
+
+			const setSliderMax = () => {
+				time_bar.max = Math.floor(audio.duration);
+			}
+
+			const showBuffer = () => {
+				const buff = Math.floor(audio.buffered.end(audio.buffered.length - 1));
+				container.style.setProperty('--buffered', `${(buff / time_bar.max) * 100}%`);
+			}
+
+            const playAnimation = () => {
+                shadow.getElementById('icon-pause').classList.remove('hidden');
+                shadow.getElementById('icon-play').classList.add('hidden');
+            }
+
+            const pauseAnimation = () => {
+                shadow.getElementById('icon-play').classList.remove('hidden');
+                shadow.getElementById('icon-pause').classList.add('hidden');
+            }
+
+			if (audio.readyState > 0) {
+				showProgress();
+				setSliderMax();
+				showBuffer();
+			} else {
+				audio.addEventListener('loadedmetadata', () => {
+					showDuration();
+					setSliderMax();
+					showBuffer();
+				});
+			}
+
+			play_icon.addEventListener('click', () => {
+
+				if(play_state === 1) {
+					audio.play();
+					playAnimation();
+					requestAnimationFrame( loopPlay );
+					play_state = 0;
+				} else {
+					audio.pause();
+					pauseAnimation();
+					cancelAnimationFrame(loop);
+					play_state = 1;
+				}
+			});
+
+			audio.addEventListener('progress', showBuffer);
+
+			time_bar.addEventListener('input', (e) => {
+				showProgress(e.target);
+				current.textContent = calcTime(time_bar.value);
+				if(!audio.paused) {
+					cancelAnimationFrame(loop);
+				}
+			});
+
+			time_bar.addEventListener('change', () => {
+				audio.currentTime = time_bar.value;
+				if(!audio.paused) {
+					requestAnimationFrame( loopPlay );
+				}
+			});
+
+            back.addEventListener('click', () => {
+                audio.currentTime = audio.currentTime - 30;
+                let arrow = back.querySelector('.arrow');
+                arrow.style = 'transform: rotate(-360deg);transition: 1s all ease-in-out;';
+                setTimeout(() => {arrow.style = ''}, 1001);
+                requestAnimationFrame( loopPlay );
+            });
+
+            forw.addEventListener('click', () => {
+                audio.currentTime = audio.currentTime + 30;
+                let arrow = forw.querySelector('.arrow');
+                arrow.style = 'transform: rotate(360deg);transition: 1s all ease-in-out;';
+                setTimeout(() => {arrow.style = ''}, 1001);
+                requestAnimationFrame( loopPlay );
+            });
+
+			if('mediaSession' in navigator) {
+
+				navigator.mediaSession.metadata = new MediaMetadata({
+
+					title: '',
+					artist: '',
+					album: '',
+					artwork: [
+						{ src: 'https://darknetdiaries.com/imgs/darknet-diaries-sm.jpg', sizes: '512x512', type: 'image/jpg' }
+					]
+				});
+
+				navigator.mediaSession.setActionHandler('play', () => {
+					if(play_state === 1) {
+						audio.play();
+						playAnimation();
+						requestAnimationFrame( loopPlay );
+						play_state = 0;
+					} else {
+						audio.pause();
+						pauseAnimation();
+						cancelAnimationFrame(loop);
+						play_state = 1;
+					}
+				});
+
+				navigator.mediaSession.setActionHandler('pause', () => {
+					if(play_state === 1) {
+						audio.play();
+						playAnimation();
+						requestAnimationFrame( loopPlay );
+						play_state = 0;
+					} else {
+						audio.pause();
+						pauseAnimation();
+						cancelAnimationFrame(loop);
+						play_state = 1;
+					}
+				});
+
+				navigator.mediaSession.setActionHandler('seekbackward', (details) => {
+					audio.currentTime = audio.currentTime - (details.seekOffset || 10);
+				});
+
+				navigator.mediaSession.setActionHandler('seekforward', (details) => {
+					audio.currentTime = audio.currentTime + (details.seekOffset || 10);
+				});
+
+				navigator.mediaSession.setActionHandler('seekto', (details) => {
+					if (details.fastSeek && 'fastSeek' in audio) {
+						audio.fastSeek(details.seekTime);
+						return;
+					}
+					audio.currentTime = details.seekTime;
+				});
+
+				navigator.mediaSession.setActionHandler('stop', () => {
+					audio.currentTime = 0;
+					time_bar.value = 0;
+					container.style.setProperty('--progress', '0%');
+					current.textContent = '0:00';
+					if(play_state === 0) {
+						pauseAnimation();
+						cancelAnimationFrame(loop);
+						play_state = 1;
+					}
+				});
+
+			}
+		}
+
+		customElements.define('darknet-diaries', AudioPlayer);
+
+	</script>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
