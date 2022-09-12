@@ -149,7 +149,6 @@ header h1:hover {
         width: auto;
         max-width: 200vh;
         height: 35rem;
-        left: calc(50% - 35rem);
     }
 }
 
