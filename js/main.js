@@ -181,11 +181,11 @@ async function renderList(pagination) {
     scr_page_links.forEach(scr_page_link => {
 
         let link_url = scr_page_link.href.split('/episode/')[1];
-        link_url = link_url.split('"')[0];
 
         // keep only pages numeric links
         if (link_url != undefined && parseInt(scr_page_link.innerHTML)) {
 
+            link_url = link_url.split('"')[0];
             let page_link = document.createElement('a');
 
             //  current page is active
