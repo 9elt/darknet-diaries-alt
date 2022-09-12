@@ -189,7 +189,9 @@ async function renderList(pagination) {
             let page_link = document.createElement('a');
 
             //  current page is active
-            if (link_url + '/' == pagination) page_link.classList.add('active');
+            if (link_url + '/' == pagination || link_url == pagination){
+                page_link.classList.add('active');
+            }
 
             page_link.href = '#' + link_url;
             page_link.innerHTML = scr_page_link.innerHTML;
