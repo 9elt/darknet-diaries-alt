@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Darknet Diaries - Auto Scraping Front-end</title>
+    <title>Darknet Diaries - Alternative Front-End</title>
     <link rel="stylesheet" href="css/main.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.8.0/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.8.0/ScrollTrigger.min.js"></script>
@@ -60,7 +60,6 @@
             <div class="preview-info">
 
                 <div>
-
                     <div>
                         <h2>
                             <span class="ep-number"></span>
@@ -71,12 +70,10 @@
                             <h4 class="ep-date"></h4>
                         </div>
                     </div>
-
                     <a class="p-btn" href="">Listen Now ></a>
                 </div>
 
-                <p class="ep-desc--small"></p>
-    
+               <p class="ep-desc--small"></p>
 
             </div>
 
@@ -267,6 +264,7 @@
                 background: var(--accent-color);
                 box-shadow: 0 0 .3rem var(--accent-color);
             }
+
             input[type="range"]::-moz-focus-outer {
                 border: 0;
             }
@@ -352,72 +350,73 @@
 
             </div>
 		</div>
+    
 	</template>
 
     <!-- custom player module -->
 	<script type="module">
 
-		class AudioPlayer extends HTMLElement {
-			constructor() {
-				super();
-				const template = document.querySelector('template.player');
-				const Tcontent = template.content;
-				const shadow = this.attachShadow({mode: 'open'});
-				shadow.appendChild( Tcontent.cloneNode(true) );
-			}
+        class AudioPlayer extends HTMLElement {
+            constructor() {
+                super();
+                const template = document.querySelector('template.player');
+                const Tcontent = template.content;
+                const shadow = this.attachShadow({mode: 'open'});
+                shadow.appendChild( Tcontent.cloneNode(true) );
+            }
 
-			connectedCallback() { player(this); }
-		}
+            connectedCallback() { player(this); }
+        }
 
-		const player = function (elem) {
+        const player = function (elem) {
 
-			const shadow = elem.shadowRoot;
+            const shadow = elem.shadowRoot;
 
-			const container = shadow.getElementById('container');
-			const play_icon = shadow.getElementById('play-icon');
-			const time_bar = shadow.getElementById('time-bar');
-			const duration = shadow.getElementById('duration');
-			const current = shadow.getElementById('current-time');
-			const audio = shadow.querySelector('audio');
+            const container = shadow.getElementById('container');
+            const play_icon = shadow.getElementById('play-icon');
+            const time_bar = shadow.getElementById('time-bar');
+            const duration = shadow.getElementById('duration');
+            const current = shadow.getElementById('current-time');
+            const audio = shadow.querySelector('audio');
             const back = shadow.getElementById('back-30');
             const forw = shadow.getElementById('forw-30');
 
-			let play_state = 1;
-			let loop = null;
+            let play_state = 1;
+            let loop = null;
 
-			container.className = "player";
+            container.className = "player";
             //audio.src = elem.getAttribute('data-src');
 
-			const loopPlay = () => {
-				time_bar.value = Math.floor(audio.currentTime);
-				current.textContent = calcTime(time_bar.value);
-				container.style.setProperty('--progress', `${time_bar.value / time_bar.max * 100}%`);
-				loop = requestAnimationFrame( loopPlay ) ;
-			}
+            const loopPlay = () => {
+                time_bar.value = Math.floor(audio.currentTime);
+                current.textContent = calcTime(time_bar.value);
+                container.style.setProperty('--progress', `${time_bar.value / time_bar.max * 100}%`);
+                loop = requestAnimationFrame( loopPlay ) ;
+            }
 
-			const calcTime = (secs) => {
-				const minutes = Math.floor(secs / 60);
-				const seconds = Math.floor(secs % 60);
-				const returnedSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`;
-				return `${minutes}:${returnedSeconds}`;
-			}
+            const calcTime = (secs) => {
+                const minutes = Math.floor(secs / 60);
+                const seconds = Math.floor(secs % 60);
+                const returnedSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`;
+                return `${minutes}:${returnedSeconds}`;
+            }
 
-			const showProgress = (range) => {
-				container.style.setProperty('--progress', range.value / range.max * 100 + '%');
-			}
+            const showProgress = (range) => {
+                container.style.setProperty('--progress', range.value / range.max * 100 + '%');
+            }
 
-			const showDuration = () => {
-				duration.textContent = calcTime(audio.duration);
-			}
+            const showDuration = () => {
+                duration.textContent = calcTime(audio.duration);
+            }
 
-			const setSliderMax = () => {
-				time_bar.max = Math.floor(audio.duration);
-			}
+            const setSliderMax = () => {
+                time_bar.max = Math.floor(audio.duration);
+            }
 
-			const showBuffer = () => {
-				const buff = Math.floor(audio.buffered.end(audio.buffered.length - 1));
-				container.style.setProperty('--buffered', `${(buff / time_bar.max) * 100}%`);
-			}
+            const showBuffer = () => {
+                const buff = Math.floor(audio.buffered.end(audio.buffered.length - 1));
+                container.style.setProperty('--buffered', `${(buff / time_bar.max) * 100}%`);
+            }
 
             const playAnimation = () => {
                 shadow.getElementById('icon-pause').classList.remove('hidden');
@@ -429,49 +428,49 @@
                 shadow.getElementById('icon-pause').classList.add('hidden');
             }
 
-			if (audio.readyState > 0) {
-				showProgress();
-				setSliderMax();
-				showBuffer();
-			} else {
-				audio.addEventListener('loadedmetadata', () => {
-					showDuration();
-					setSliderMax();
-					showBuffer();
-				});
-			}
+            if (audio.readyState > 0) {
+                showProgress();
+                setSliderMax();
+                showBuffer();
+            } else {
+                audio.addEventListener('loadedmetadata', () => {
+                    showDuration();
+                    setSliderMax();
+                    showBuffer();
+                });
+            }
 
-			play_icon.addEventListener('click', () => {
+            play_icon.addEventListener('click', () => {
 
-				if(play_state === 1) {
-					audio.play();
-					playAnimation();
-					requestAnimationFrame( loopPlay );
-					play_state = 0;
-				} else {
-					audio.pause();
-					pauseAnimation();
-					cancelAnimationFrame(loop);
-					play_state = 1;
-				}
-			});
+                if(play_state === 1) {
+                    audio.play();
+                    playAnimation();
+                    requestAnimationFrame( loopPlay );
+                    play_state = 0;
+                } else {
+                    audio.pause();
+                    pauseAnimation();
+                    cancelAnimationFrame(loop);
+                    play_state = 1;
+                }
+            });
 
-			audio.addEventListener('progress', showBuffer);
+            audio.addEventListener('progress', showBuffer);
 
-			time_bar.addEventListener('input', (e) => {
-				showProgress(e.target);
-				current.textContent = calcTime(time_bar.value);
-				if(!audio.paused) {
-					cancelAnimationFrame(loop);
-				}
-			});
+            time_bar.addEventListener('input', (e) => {
+                showProgress(e.target);
+                current.textContent = calcTime(time_bar.value);
+                if(!audio.paused) {
+                    cancelAnimationFrame(loop);
+                }
+            });
 
-			time_bar.addEventListener('change', () => {
-				audio.currentTime = time_bar.value;
-				if(!audio.paused) {
-					requestAnimationFrame( loopPlay );
-				}
-			});
+            time_bar.addEventListener('change', () => {
+                audio.currentTime = time_bar.value;
+                if(!audio.paused) {
+                    requestAnimationFrame( loopPlay );
+                }
+            });
 
             back.addEventListener('click', () => {
                 audio.currentTime = audio.currentTime - 30;
@@ -489,78 +488,78 @@
                 requestAnimationFrame( loopPlay );
             });
 
-			if('mediaSession' in navigator) {
+            if('mediaSession' in navigator) {
 
-				navigator.mediaSession.metadata = new MediaMetadata({
+                navigator.mediaSession.metadata = new MediaMetadata({
 
-					title: '',
-					artist: '',
-					album: '',
-					artwork: [
-						{ src: 'https://darknetdiaries.com/imgs/darknet-diaries-sm.jpg', sizes: '512x512', type: 'image/jpg' }
-					]
-				});
+                    title: 'Darknet Diaries',
+                    artist: 'Jack Rhysider',
+                    album: '',
+                    artwork: [
+                        { src: 'https://darknetdiaries.com/imgs/darknet-diaries-sm.jpg', sizes: '512x512', type: 'image/jpg' }
+                    ]
+                });
 
-				navigator.mediaSession.setActionHandler('play', () => {
-					if(play_state === 1) {
-						audio.play();
-						playAnimation();
-						requestAnimationFrame( loopPlay );
-						play_state = 0;
-					} else {
-						audio.pause();
-						pauseAnimation();
-						cancelAnimationFrame(loop);
-						play_state = 1;
-					}
-				});
+                navigator.mediaSession.setActionHandler('play', () => {
+                    if(play_state === 1) {
+                        audio.play();
+                        playAnimation();
+                        requestAnimationFrame( loopPlay );
+                        play_state = 0;
+                    } else {
+                        audio.pause();
+                        pauseAnimation();
+                        cancelAnimationFrame(loop);
+                        play_state = 1;
+                    }
+                });
 
-				navigator.mediaSession.setActionHandler('pause', () => {
-					if(play_state === 1) {
-						audio.play();
-						playAnimation();
-						requestAnimationFrame( loopPlay );
-						play_state = 0;
-					} else {
-						audio.pause();
-						pauseAnimation();
-						cancelAnimationFrame(loop);
-						play_state = 1;
-					}
-				});
+                navigator.mediaSession.setActionHandler('pause', () => {
+                    if(play_state === 1) {
+                        audio.play();
+                        playAnimation();
+                        requestAnimationFrame( loopPlay );
+                        play_state = 0;
+                    } else {
+                        audio.pause();
+                        pauseAnimation();
+                        cancelAnimationFrame(loop);
+                        play_state = 1;
+                    }
+                });
 
-				navigator.mediaSession.setActionHandler('seekbackward', (details) => {
-					audio.currentTime = audio.currentTime - (details.seekOffset || 10);
-				});
+                navigator.mediaSession.setActionHandler('seekbackward', (details) => {
+                    audio.currentTime = audio.currentTime - (details.seekOffset || 10);
+                });
 
-				navigator.mediaSession.setActionHandler('seekforward', (details) => {
-					audio.currentTime = audio.currentTime + (details.seekOffset || 10);
-				});
+                navigator.mediaSession.setActionHandler('seekforward', (details) => {
+                    audio.currentTime = audio.currentTime + (details.seekOffset || 10);
+                });
 
-				navigator.mediaSession.setActionHandler('seekto', (details) => {
-					if (details.fastSeek && 'fastSeek' in audio) {
-						audio.fastSeek(details.seekTime);
-						return;
-					}
-					audio.currentTime = details.seekTime;
-				});
+                navigator.mediaSession.setActionHandler('seekto', (details) => {
+                    if (details.fastSeek && 'fastSeek' in audio) {
+                        audio.fastSeek(details.seekTime);
+                        return;
+                    }
+                    audio.currentTime = details.seekTime;
+                });
 
-				navigator.mediaSession.setActionHandler('stop', () => {
-					audio.currentTime = 0;
-					time_bar.value = 0;
-					container.style.setProperty('--progress', '0%');
-					current.textContent = '0:00';
-					if(play_state === 0) {
-						pauseAnimation();
-						cancelAnimationFrame(loop);
-						play_state = 1;
-					}
-				});
+                navigator.mediaSession.setActionHandler('stop', () => {
+                    audio.currentTime = 0;
+                    time_bar.value = 0;
+                    container.style.setProperty('--progress', '0%');
+                    current.textContent = '0:00';
+                    if(play_state === 0) {
+                        pauseAnimation();
+                        cancelAnimationFrame(loop);
+                        play_state = 1;
+                    }
+                });
 
-			}
-		}
+            }
+        }
 
-		customElements.define('darknet-diaries', AudioPlayer);
+        customElements.define('darknet-diaries', AudioPlayer);
 
 	</script>
 
