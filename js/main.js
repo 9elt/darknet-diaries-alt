@@ -1,3 +1,7 @@
+import AudioPlayer from "./player.js";
+
+customElements.define('darknet-diaries', AudioPlayer);
+
 const target_url = 'https://darknetdiaries.com';
 
 const episode_template = document.querySelector('template.episode').innerHTML;
@@ -27,7 +31,7 @@ async function listenUrlChanges() {
 //  all origins allowed
 async function fetchRequest(url) {
 
-    let page = await fetch(target_url + '/' + url);
+    let page = await fetch(url);
     page = await page.text();
 
     return page;
@@ -35,7 +39,7 @@ async function fetchRequest(url) {
 
 async function scrapePage(url) {
 
-    let str = await fetchRequest(url);
+    let str = await fetchRequest(target_url + '/' + url);
 
     //  the scraped page is created without appending it to the page,
     //  in order to be able to use dom element methods it.
@@ -133,8 +137,8 @@ async function renderEpisode(ep) {
     });
 
     //  next and previous links
-    ep_prev = parseInt(ep) - 1;
-    ep_next = parseInt(ep) + 1;
+    let ep_prev = parseInt(ep) - 1;
+    let ep_next = parseInt(ep) + 1;
     ep_prev > 0 ? previous.href = '#' + ep_prev : previous.classList.add('disabled');
     ep_next <= last_ep ? next.href = '#' + ep_next : next.classList.add('disabled');
 
