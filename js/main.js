@@ -11,12 +11,13 @@ const preview_template = document.querySelector('template.ep-preview').innerHTML
 fakeRouter();
 listenUrlChanges();
 
-//  fake router uses hashes to render the page
-//  as there is no actual routing
+//  fake router uses hashes as there is no actual routing
 async function fakeRouter() {
 
     const EP = window.location.hash.substring(1);
     parseInt(EP) ? renderEpisode(EP): renderList(EP);
+
+    bannerAnimation();
 }
 
 async function listenUrlChanges() {
@@ -27,26 +28,18 @@ async function listenUrlChanges() {
     });
 }
 
-//  this will work only if the target server has
-//  all origins allowed
-async function fetchRequest(url) {
-
-    let page = await fetch(url);
-    page = await page.text();
-
-    return page;
-}
-
+//  this will work only if the target server has all origins allowed
 async function scrapePage(url) {
 
-    let str = await fetchRequest(target_url + '/' + url);
+    let str = await fetch(target_url + '/' + url);
+    str = await str.text();
 
-    //  the scraped page is created without appending it to the page,
-    //  in order to be able to use dom element methods it.
+    //  the scraped page is created in the dom without
+    //  appending it to the page
     let scraped = document.createElement('div');
 
     //  replacing the images src attribute prevents them
-    //  from being donwloaded when loading into the dom
+    //  from being donwloaded when loading them into the dom
     str = str.replaceAll('src="', 'data-src="');
     scraped.innerHTML = str;
 
@@ -62,7 +55,7 @@ async function renderEpisode(ep) {
     const scraped = await scrapePage(`episode/${ep}/`);
 
     //  the first script tag in the episode description is the player configuration
-    //  containing url to the podcast mp3
+    //  containing the url to the podcast mp3 file
     let scr_description = scraped.querySelector('article.single-post');
     let scr_player_config = scr_description.querySelector('script');
     scr_player_config = scr_player_config.innerHTML.replace('window.playerConfiguration = ', '');
@@ -169,7 +162,6 @@ async function renderEpisode(ep) {
 
     toggleDescription();
     parallaxAnimation(window.outerHeight);
-    bannerAnimation();
 }
 
 async function renderList(pagination) {
@@ -186,7 +178,6 @@ async function renderList(pagination) {
 
         let link_url = scr_page_link.href.split('/episode/')[1];
 
-        // keep only pages numeric links
         if (link_url != undefined && parseInt(scr_page_link.innerHTML)) {
 
             link_url = link_url.split('"')[0];
@@ -254,8 +245,6 @@ async function renderList(pagination) {
 
         container.append(preview);
     });
-
-    bannerAnimation();
 }
 
 //  page animations and interaction
