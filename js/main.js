@@ -16,6 +16,8 @@ async function fakeRouter() {
 
     const EP = window.location.hash.substring(1);
     parseInt(EP) ? renderEpisode(EP): renderList(EP);
+
+    bannerAnimation();
 }
 
 async function listenUrlChanges() {
@@ -27,17 +29,10 @@ async function listenUrlChanges() {
 }
 
 //  this will work only if the target server has all origins allowed
-async function fetchRequest(url) {
-
-    let page = await fetch(url);
-    page = await page.text();
-
-    return page;
-}
-
 async function scrapePage(url) {
 
-    let str = await fetchRequest(target_url + '/' + url);
+    let str = await fetch(target_url + '/' + url);
+    str = await str.text();
 
     //  the scraped page is created in the dom without
     //  appending it to the page
@@ -167,7 +162,6 @@ async function renderEpisode(ep) {
 
     toggleDescription();
     parallaxAnimation(window.outerHeight);
-    bannerAnimation();
 }
 
 async function renderList(pagination) {
@@ -251,8 +245,6 @@ async function renderList(pagination) {
 
         container.append(preview);
     });
-
-    bannerAnimation();
 }
 
 //  page animations and interaction
